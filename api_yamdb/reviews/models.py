@@ -1,9 +1,6 @@
-from datetime import datetime
-
 from django.db import models
 from django.core.validators import MaxValueValidator
-
-current_year = datetime.now().year
+from django.utils import timezone
 
 
 class Category(models.Model):
@@ -40,10 +37,11 @@ class Title(models.Model):
     name = models.CharField('Название произведения',
                             max_length=256)
     year = models.IntegerField('Год',
-                               validators=[MaxValueValidator(current_year)],
+                               validators=[MaxValueValidator(
+                                   timezone.now().year)],
                                help_text='Год не может быть больше текущего')
     description = models.TextField('Описание',
-                                   blank=False)
+                                   blank=True)
     category = models.ForeignKey(Category,
                                  on_delete=models.SET_NULL,
                                  null=True,

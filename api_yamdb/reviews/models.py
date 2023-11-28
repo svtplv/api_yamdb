@@ -1,4 +1,9 @@
+from datetime import datetime
+
 from django.db import models
+from django.core.validators import MaxValueValidator
+
+current_year = datetime.now().year
 
 
 class Category(models.Model):
@@ -34,8 +39,11 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField('Название произведения',
                             max_length=256)
-    year = models.IntegerField('Год')
-    description = models.TextField('Описание')
+    year = models.IntegerField('Год',
+                               validators=[MaxValueValidator(current_year)],
+                               help_text='Год не может быть больше текущего')
+    description = models.TextField('Описание',
+                                   blank=False)
     category = models.ForeignKey(Category,
                                  on_delete=models.SET_NULL,
                                  null=True,
@@ -43,7 +51,7 @@ class Title(models.Model):
     genre = models.ManyToManyField(Genre,
                                    on_delete=models.SET_NULL,
                                    null=True,
-                                   related_name='genre_titles')
+                                   related_name='titles')
 
     class Meta:
         verbose_name = 'Произведение'

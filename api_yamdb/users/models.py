@@ -53,7 +53,6 @@ class User(AbstractUser):
             models.CheckConstraint(
                 check=~models.Q(username='me'),
                 name='username_not_me',
-                violation_error_message='Введите имя отличное от "me"'
             )
         ]
 

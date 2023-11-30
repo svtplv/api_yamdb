@@ -2,8 +2,8 @@ from rest_framework import (mixins,
                             viewsets,
                             filters)
 
-from reviews.models import Category
-from .serializers import CategorySerializer
+from reviews.models import Category, Genre
+from .serializers import CategorySerializer, GenreSerializer
 from users.permissions import IsAdminOrReadOnly, IsAdmin
 from .pagination import CustomPagination
 
@@ -22,6 +22,12 @@ class GenreCategoryViewSet(mixins.ListModelMixin,
         if self.action == 'destroy':
             return (IsAdmin(),)
         return super().get_permissions()
+
+
+class GenreViewSet(GenreCategoryViewSet):
+    """ViewSet для модели Genre."""
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
 
 
 class CategoryViewSet(GenreCategoryViewSet):

@@ -1,10 +1,10 @@
 from rest_framework import (mixins,
                             viewsets,
                             filters)
-
-from reviews.models import Category, Genre
-from .serializers import CategorySerializer, GenreSerializer
-from users.permissions import IsAdminOrReadOnly, IsAdmin
+from django_filters.rest_framework import DjangoFilterBackend
+from reviews.models import Category, Genre, Title
+from .serializers import CategorySerializer, GenreSerializer, TitleSerilizer
+from users.permissions import IsAdminOrReadOnly, IsAdmin, IsAuthorStaffOrReadOnly
 from .pagination import CustomPagination
 
 
@@ -34,3 +34,18 @@ class CategoryViewSet(GenreCategoryViewSet):
     """ViewSet для модели Category."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """ViewSet для модели Title."""
+    queryset = Title.objects.all()
+    serializer_class = TitleSerilizer
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    permission_classes = (IsAuthorStaffOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = (
+        'category',
+        'genre',
+        'name',
+        'year',
+    )

@@ -1,11 +1,11 @@
-from rest_framework import (mixins,
-                            viewsets,
-                            filters)
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, mixins, viewsets
 from reviews.models import Category, Genre, Title
-from .serializers import CategorySerializer, GenreSerializer, TitleSerilizer
-from users.permissions import IsAdminOrReadOnly, IsAdmin, IsAuthorStaffOrReadOnly
+from users.permissions import (IsAdmin, IsAdminOrReadOnly,
+                               IsAuthorStaffOrReadOnly)
+
 from .pagination import CustomPagination
+from .serializers import CategorySerializer, GenreSerializer, TitleSerilizer
 
 
 class GenreCategoryViewSet(mixins.ListModelMixin,

@@ -35,7 +35,8 @@ class User(AbstractUser):
         'Роль',
         max_length=10,
         choices=ROLE_CHOICES,
-        default=USER)
+        default=USER
+    )
 
     @property
     def is_mod(self):

@@ -32,12 +32,18 @@ class TitleSerilizer(serializers.ModelSerializer):
         if rating_reviews.get('avg_rating') is not None:
             return 0
         return rating_reviews.get('avg_rating')
+ 
+    def validate_name(self, value):
+        if len(value) > 256:
+            raise serializers.ValidationError('Длина названия произведения не может превышать 256 символов')
+        return value
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = ('name', 'slug',)
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:

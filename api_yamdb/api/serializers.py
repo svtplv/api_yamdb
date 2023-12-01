@@ -1,7 +1,7 @@
 from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
-from reviews.models import Category, Comment, Genre, Title
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class TitleSerilizer(serializers.ModelSerializer):
@@ -45,6 +45,32 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('name', 'slug',)
+
+
+class ReviewUpdateSerializer(serializers.ModelSerializer):
+    author = SlugRelatedField(
+        slug_field='username',
+        read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date',)
+
+
+class ReviewSerializer(ReviewUpdateSerializer):
+    def validate(self, data):
+        request = self.context['request']
+        author_id = request.user
+        title_id = self.context['view'].kwargs.get('title_id')
+        if Review.objects.filter(
+            author=author_id, title=title_id
+        ).exists():
+            raise serializers.ValidationError(
+                'Можно оставить только один отзыв к одному произведению'
+            )
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):

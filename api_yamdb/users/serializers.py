@@ -45,6 +45,7 @@ class TokenSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
+        read_only_fields = ('username', 'confirmation_code')
 
     def get_token(self, obj):
         return obj

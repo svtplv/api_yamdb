@@ -20,7 +20,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_simplejwt',
     'api',
-    'users',
+    'users.apps.UsersConfig',
     'reviews',
 ]
 
@@ -110,3 +110,4 @@ SIMPLE_JWT = {
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 DEFAULT_FROM_EMAIL = 'noreply@yamdb.ru'
+FORBIDDEN_WORDS = ['me']

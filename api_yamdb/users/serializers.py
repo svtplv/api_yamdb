@@ -1,6 +1,5 @@
 from rest_framework.fields import CharField
-from rest_framework.serializers import (ModelSerializer, Serializer,
-                                        ValidationError)
+from rest_framework.serializers import ModelSerializer, Serializer
 
 from .models import User
 
@@ -10,11 +9,6 @@ class SignUpSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email')
-
-    def validate_username(self, value):
-        if value == 'me':
-            raise ValidationError('Имя пользователя не может быть me')
-        return value
 
 
 class TokenSerializer(Serializer):
@@ -35,11 +29,6 @@ class UserSerializer(ModelSerializer):
             'bio',
             'role',
         )
-
-    def validate_username(self, value):
-        if value == 'me':
-            raise ValidationError('Имя пользователя не может быть me')
-        return value
 
 
 class MyProfileSerializer(ModelSerializer):

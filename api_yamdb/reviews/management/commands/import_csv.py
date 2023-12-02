@@ -15,7 +15,7 @@ class Command(BaseCommand):
     model_classes = {
         'category': Category,
         'comments': Comment,
-        # 'genre_title': TitleGenre,
+        #'genre_title': TitleGenre,
         'genre': Genre,
         'review': Review,
         'titles': Title,
@@ -34,12 +34,29 @@ class Command(BaseCommand):
         model_name = os.path.splitext(os.path.basename(csv_file))[0]
         model_class = self.model_classes[model_name]
 
+        relation_keys = [
+           
+            'review_id',
+            'author',
+            'title_id',
+            'genre_id',
+            'title_id',
+            'category'
+            ]
+
         with open(csv_file, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file)
             for row in reader:
                 instance = model_class()
                 for field, value in row.items():
-                    setattr(instance, field, value)
+                    if field in relation_keys:
+                        related_model_name = field
+                        related_model = self.model_classes[related_model_name]
+                        related_instance, status = (related_model.objects
+                                                    .get_or_create(pk=value))
+                        setattr(instance, related_model_name, related_instance)
+                    else:
+                        setattr(instance, field, value)
                 instance.save()
 
             self.stdout.write(self.style.SUCCESS(f'Данные из {csv_file} успешно загружены'))

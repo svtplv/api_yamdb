@@ -48,3 +48,4 @@ class TokenSerializer(ModelSerializer):
 
     def get_token(self, obj):
         return obj
+    

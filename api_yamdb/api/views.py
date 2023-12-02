@@ -42,6 +42,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Title."""
     queryset = Title.objects.all()
     serializer_class = TitleSerilizer
+    pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)

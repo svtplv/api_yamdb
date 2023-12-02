@@ -1,12 +1,25 @@
 from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import (
+    MaxValueValidator,
+    MinValueValidator,
+    RegexValidator)
 from django.utils import timezone
 from users.models import User
 
 
 class Category(models.Model):
     name = models.CharField('Название категории', max_length=256)
-    slug = models.SlugField('Slug категории', unique=True, max_length=50,)
+    slug = models.SlugField(
+        'Slug категории',
+        unique=True,
+        max_length=50,
+        validators=[
+            RegexValidator(
+                regex=r'^[-a-zA-Z0-9_]+$',
+                message=(
+                    'Slug должен состоять из латинских букв или цифр '
+                ),)
+        ],)
 
     class Meta:
         verbose_name = 'Категория'
@@ -19,7 +32,17 @@ class Category(models.Model):
 
 class Genre(models.Model):
     name = models.CharField('Название жанра', max_length=256)
-    slug = models.SlugField('Slug жанра', unique=True, max_length=50)
+    slug = models.SlugField(
+        'Slug жанра',
+        unique=True,
+        max_length=50,
+        validators=[
+            RegexValidator(
+                regex=r'^[-a-zA-Z0-9_]+$',
+                message=(
+                    'Slug должен состоять из латинских букв или цифр '               
+                ),)
+        ],)
 
     class Meta:
         verbose_name = 'Жанр'
@@ -56,6 +79,7 @@ class Title(models.Model):
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
+        ordering = ['id']
 
     def __str__(self):
         return self.name

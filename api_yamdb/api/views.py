@@ -10,6 +10,7 @@ from .pagination import CustomPagination
 from .serializers import (CategorySerializer, CommentSerializer,
                           ReviewSerializer, ReviewUpdateSerializer,
                           GenreSerializer, TitleSerilizer)
+from .filters import TitleFilter
 
 
 class GenreCategoryViewSet(mixins.ListModelMixin,
@@ -49,12 +50,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = (
-        'category',
-        'genre',
-        'name',
-        'year',
-    )
+    filterset_class = TitleFilter
 
 
 class CommentViewSet(viewsets.ModelViewSet):

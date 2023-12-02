@@ -3,12 +3,14 @@ from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, permissions, viewsets
 from reviews.models import Category, Genre, Review, Title
 from users.permissions import (IsAdmin, IsAdminOrReadOnly,
-                               IsAuthorStaffOrReadOnly)
+                               IsAuthorStaffOrReadOnly,
+                               IsAdminOrReadOnly,)
 
 from .pagination import CustomPagination
 from .serializers import (CategorySerializer, CommentSerializer,
                           ReviewSerializer, ReviewUpdateSerializer,
                           GenreSerializer, TitleSerilizer)
+from .filters import TitleFilter
 
 
 class GenreCategoryViewSet(mixins.ListModelMixin,
@@ -17,6 +19,7 @@ class GenreCategoryViewSet(mixins.ListModelMixin,
                            viewsets.GenericViewSet):
     """Базовый ViewSet для модели Genre и Category."""
     filter_backends = (filters.SearchFilter,)
+    lookup_field = 'slug'
     search_fields = ('name',)
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = CustomPagination
@@ -43,15 +46,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Title."""
     queryset = Title.objects.all()
     serializer_class = TitleSerilizer
+    pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
-    permission_classes = (IsAuthorStaffOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = (
-        'category',
-        'genre',
-        'name',
-        'year',
-    )
+    filterset_class = TitleFilter
 
 
 class CommentViewSet(viewsets.ModelViewSet):

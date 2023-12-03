@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import (
     MaxValueValidator,
     MinValueValidator,
-    RegexValidator)
+)
 from django.utils import timezone
 from users.models import User
 
@@ -13,13 +13,7 @@ class Category(models.Model):
         'Slug категории',
         unique=True,
         max_length=50,
-        validators=[
-            RegexValidator(
-                regex=r'^[-a-zA-Z0-9_]+$',
-                message=(
-                    'Slug должен состоять из латинских букв или цифр '
-                ),)
-        ],)
+    )
 
     class Meta:
         verbose_name = 'Категория'
@@ -36,13 +30,7 @@ class Genre(models.Model):
         'Slug жанра',
         unique=True,
         max_length=50,
-        validators=[
-            RegexValidator(
-                regex=r'^[-a-zA-Z0-9_]+$',
-                message=(
-                    'Slug должен состоять из латинских букв или цифр '    
-                ),)
-        ],)
+    )
 
     class Meta:
         verbose_name = 'Жанр'

@@ -2,8 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, viewsets
 from reviews.models import Category, Genre, Review, Title
-from users.permissions import (IsAdmin, IsAdminOrReadOnly,
-                               IsAuthorStaffOrReadOnly)
+from users.permissions import IsAdminOrReadOnly, IsAuthorStaffOrReadOnly
 
 from .pagination import CustomPagination
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -22,11 +21,6 @@ class GenreCategoryViewSet(mixins.ListModelMixin,
     search_fields = ('name',)
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = CustomPagination
-
-    def get_permissions(self):
-        if self.action == 'destroy':
-            return (IsAdmin(),)
-        return super().get_permissions()
 
 
 class GenreViewSet(GenreCategoryViewSet):
@@ -56,18 +50,18 @@ class CommentViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Comment."""
     serializer_class = CommentSerializer
     permission_classes = (IsAuthorStaffOrReadOnly, )
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
         review = get_object_or_404(
             Review,
-            pk=self.kwargs.get('review_id', 'title_id')
+            pk=self.kwargs.get('review_id')
         )
         return review.comments.all()
 
     def perform_create(self, serializer):
         review = get_object_or_404(
             Review, pk=self.kwargs.get('review_id'),
-            title_id=self.kwargs.get('title_id')
         )
         serializer.save(
             author=self.request.user, review=review

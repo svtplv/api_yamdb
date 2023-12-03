@@ -40,7 +40,7 @@ class Genre(models.Model):
             RegexValidator(
                 regex=r'^[-a-zA-Z0-9_]+$',
                 message=(
-                    'Slug должен состоять из латинских букв или цифр '               
+                    'Slug должен состоять из латинских букв или цифр '    
                 ),)
         ],)
 
@@ -71,8 +71,6 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         verbose_name='Жанр',
-        # on_delete=models.SET_NULL,
-        # null=True,
         related_name='titles'
     )
 
@@ -114,6 +112,7 @@ class Review(models.Model):
                 name='Каждый автор может написать только один отзыв'
             ),
         )
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.text

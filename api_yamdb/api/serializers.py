@@ -44,19 +44,13 @@ class TitleSerilizer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         rating_reviews = obj.reviews.aggregate(avg_rating=Avg('score'))
-        if rating_reviews.get('avg_rating') is not None:
-            return 0
         return rating_reviews.get('avg_rating')
-
-    def validate_name(self, value):
-        if len(value) > 256:
-            raise serializers.ValidationError('Слишком длинное имя')
-        return value
 
     def to_representation(self, instance):
         representation = super(
             TitleSerilizer, self).to_representation(instance)
-        representation['genre'] = GenreSerializer(instance.genre, many=True).data
+        representation['genre'] = GenreSerializer(
+            instance.genre, many=True).data
         representation['category'] = CategorySerializer(instance.category).data
         return representation
 

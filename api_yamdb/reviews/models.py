@@ -40,7 +40,7 @@ class Genre(models.Model):
             RegexValidator(
                 regex=r'^[-a-zA-Z0-9_]+$',
                 message=(
-                    'Slug должен состоять из латинских букв или цифр '               
+                    'Slug должен состоять из латинских букв или цифр '    
                 ),)
         ],)
 
@@ -71,8 +71,6 @@ class Title(models.Model):
     genre = models.ManyToManyField(
         Genre,
         verbose_name='Жанр',
-        # on_delete=models.SET_NULL,
-        # null=True,
         related_name='titles'
     )
 
@@ -99,7 +97,7 @@ class Review(models.Model):
         related_name='reviews',
         on_delete=models.CASCADE,
     )
-    score = models.IntegerField(
+    score = models.SmallIntegerField(
         'Оценка',
         validators=(MinValueValidator(1), MaxValueValidator(10),)
     )
@@ -114,6 +112,7 @@ class Review(models.Model):
                 name='Каждый автор может написать только один отзыв'
             ),
         )
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.text
@@ -126,12 +125,6 @@ class Comment(models.Model):
         related_name='comments',
         on_delete=models.CASCADE,
     )
-    title = models.ForeignKey(
-        Title,
-        verbose_name='Произведение',
-        related_name='comments',
-        on_delete=models.CASCADE,
-    )
     review = models.ForeignKey(
         Review,
         verbose_name='Отзыв',
@@ -139,11 +132,13 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
     )
     text = models.TextField('Текст комментария')
-    pub_date = models.DateTimeField('Дата отзыва', auto_now_add=True)
+    pub_date = models.DateTimeField('Дата отзыва', auto_now_add=True,
+                                    db_index=True)
 
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.text

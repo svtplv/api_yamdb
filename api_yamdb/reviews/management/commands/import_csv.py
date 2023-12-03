@@ -3,14 +3,12 @@ import re
 
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-
 from reviews.models import Title, Genre, Category, Review, Comment
 
 User = get_user_model()
 
-
 class Command(BaseCommand):
-    help = 'Импорт данных CSV файлов в базу данных'
+    help = 'Импорт данных из CSV файлов в базу данных'
 
     def import_data(self, model, file_path):
         """Функция загрузки CSV-файла и сохрания в базу данных."""

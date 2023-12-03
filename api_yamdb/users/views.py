@@ -1,8 +1,6 @@
-import re
-
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMessage
-from django.shortcuts import get_object_or_404
+from django.db import IntegrityError
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
@@ -22,11 +20,6 @@ from .serializers import (MyProfileSerializer, SignUpSerializer,
 class APISignUp(APIView):
 
     @staticmethod
-    def user_exists(errors):
-        re_errors = re.findall("(?<=code=').*?(?=')", repr(errors))
-        return re_errors == ['unique', 'unique']
-
-    @staticmethod
     def send_message(recipient):
         confirmation_code = PasswordResetTokenGenerator().make_token(recipient)
         message = EmailMessage(
@@ -36,17 +29,28 @@ class APISignUp(APIView):
         )
         message.send()
 
+    @staticmethod
+    def get_error(username):
+        EMAIL_INCORRECT = {
+            'email': 'Указан неверный адрес или имя пользователя уже занято'
+        }
+        EMAIL_TAKEN = {'email': 'Пользователь с этим адресом уже существует'}
+        return (
+            EMAIL_INCORRECT if User.objects.filter(username=username).exists()
+            else EMAIL_TAKEN
+        )
+
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
+        serializer.is_valid(raise_exception=True)
+        try:
+            user, _ = User.objects.get_or_create(**serializer.validated_data)
             self.send_message(user)
             return Response(serializer.data, HTTP_200_OK)
-        if self.user_exists(serializer.errors):
-            user = get_object_or_404(User, username=request.data['username'])
-            self.send_message(user)
-            return Response(serializer.data, HTTP_200_OK)
-        return Response(serializer.errors, HTTP_400_BAD_REQUEST)
+        except IntegrityError:
+            return Response(
+                self.get_error(request.data['username']), HTTP_400_BAD_REQUEST
+            )
 
 
 class UserViewSet(ModelViewSet):

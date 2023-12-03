@@ -7,6 +7,7 @@ from reviews.models import Title, Genre, Category, Review, Comment
 
 User = get_user_model()
 
+
 class Command(BaseCommand):
     help = 'Импорт данных из CSV файлов в базу данных'
 

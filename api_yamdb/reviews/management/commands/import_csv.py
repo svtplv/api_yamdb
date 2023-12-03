@@ -15,7 +15,7 @@ class Command(BaseCommand):
     model_classes = {
         'category': Category,
         'comments': Comment,
-        #'genre_title': TitleGenre,
+        'genre_title': None,
         'genre': Genre,
         'review': Review,
         'titles': Title,
@@ -35,7 +35,7 @@ class Command(BaseCommand):
         model_class = self.model_classes[model_name]
 
         relation_keys = [
-           
+
             'review_id',
             'author',
             'title_id',
@@ -51,13 +51,18 @@ class Command(BaseCommand):
                 for field, value in row.items():
                     if field in relation_keys:
                         related_model_name = field
-                        related_model = self.model_classes[related_model_name]
-                        related_instance, status = (related_model.objects
-                                                    .get_or_create(pk=value))
-                        setattr(instance, related_model_name, related_instance)
+                        related_model = self.model_classes.get(
+                            related_model_name)
+                        if related_model:
+                            related_instance, status = (
+                                related_model.objects.get_or_create(pk=value))
+                        elif related_model_name == 'genre_title':
+                            getattr(instance, 'genre').add(related_instance)
+                        else:
+                            self.stdout.write(self.style.ERROR(
+                                f' Модель {related_model} не найдена'))
                     else:
                         setattr(instance, field, value)
                 instance.save()
-
-            self.stdout.write(self.style.SUCCESS(f'Данные из {csv_file} успешно загружены'))
-    
+            self.stdout.write(self.style.SUCCESS(
+                f'Данные из {csv_file} успешно загружены'))

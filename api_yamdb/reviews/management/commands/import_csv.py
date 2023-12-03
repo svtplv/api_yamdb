@@ -12,57 +12,47 @@ User = get_user_model()
 class Command(BaseCommand):
     help = 'Импорт данных CSV файлов в базу данных'
 
-    model_classes = {
-        'category': Category,
-        'comments': Comment,
-        'genre_title': None,
-        'genre': Genre,
-        'review': Review,
-        'titles': Title,
-        'users': User
-    }
+    def import_data(self, model, file_path):
+        """Функция загрузки CSV-файла и сохрания в базу данных."""
+        with open(file_path, 'r', encoding='utf-8') as csv_file:
+            reader = csv.DictReader(csv_file)
+            print(reader)
 
-    def add_arguments(self, parser):
-        parser.add_argument('csv_file', type=str, help='CSV-файл для загрузки')
+            relation_keys = [
+                'category',
+                'genre',
+                'author',
+                'title_id',
+                'genre_id',
+                'review_id']
+
+            model_instance = []
+            for row in reader:
+                print(row)                
+                for key in relation_keys:
+                    print(key)
+                    if key in row:
+                        print(key)
+                        relation_id = row.get(key)
+                        print(relation_id)
+                        relation_instance = getattr(
+                            model, key).relation_instance
+                        row[key] = relation_instance.objects.get(
+                            pk=relation_id)
+                model_instance.append(model(**row))
+            model.objects.bulk_create(model_instance)
 
     def handle(self, *args, **options):
-        csv_file = options['csv_file']
-        self.import_data(csv_file)
-
-    def import_data(self, csv_file):
-        """Функция загрузки CSV-файла и сохрания в базу данных."""
-        model_name = os.path.splitext(os.path.basename(csv_file))[0]
-        model_class = self.model_classes[model_name]
-
-        relation_keys = [
-
-            'review_id',
-            'author',
-            'title_id',
-            'genre_id',
-            'title_id',
-            'category'
-            ]
-
-        with open(csv_file, 'r', encoding='utf-8') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                instance = model_class()
-                for field, value in row.items():
-                    if field in relation_keys:
-                        related_model_name = field
-                        related_model = self.model_classes.get(
-                            related_model_name)
-                        if related_model:
-                            related_instance, status = (
-                                related_model.objects.get_or_create(pk=value))
-                        elif related_model_name == 'genre_title':
-                            getattr(instance, 'genre').add(related_instance)
-                        else:
-                            self.stdout.write(self.style.ERROR(
-                                f' Модель {related_model} не найдена'))
-                    else:
-                        setattr(instance, field, value)
-                instance.save()
+        model_path = {
+            Category: 'static/data/category.csv',
+            Title: 'static/data/titles.csv',
+            Comment: 'static/data/comments.csv',
+            Review: 'static/data/review.csv',
+            Genre: 'static/data/genre.csv',
+            User: 'static/data/users.csv'}
+            # Title: 'static/data/genre_title.csv'}
+ 
+        for model, file_path in model_path.items():
+            self.import_data(model, file_path)
             self.stdout.write(self.style.SUCCESS(
-                f'Данные из {csv_file} успешно загружены'))
+                f'Данные из {file_path} успешно загружены'))

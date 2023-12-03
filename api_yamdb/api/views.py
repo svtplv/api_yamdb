@@ -1,33 +1,23 @@
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
 from reviews.models import Category, Genre, Review, Title
 from users.permissions import IsAdminOrReadOnly, IsAuthorStaffOrReadOnly
 
-from .serializers import (CategorySerializer, CommentSerializer,
-                          ReviewSerializer, ReviewUpdateSerializer,
-                          GenreSerializer, TitleSerilizer)
 from .filters import TitleFilter
+from .mixins import GenreCategoryMixin
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer,
+                          ReviewUpdateSerializer, TitleSerilizer)
 
 
-class GenreCategoryViewSet(mixins.ListModelMixin,
-                           mixins.CreateModelMixin,
-                           mixins.DestroyModelMixin,
-                           viewsets.GenericViewSet):
-    """Базовый ViewSet для модели Genre и Category."""
-    filter_backends = (filters.SearchFilter,)
-    lookup_field = 'slug'
-    search_fields = ('name',)
-    permission_classes = (IsAdminOrReadOnly,)
-
-
-class GenreViewSet(GenreCategoryViewSet):
+class GenreViewSet(GenreCategoryMixin):
     """ViewSet для модели Genre."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
-class CategoryViewSet(GenreCategoryViewSet):
+class CategoryViewSet(GenreCategoryMixin):
     """ViewSet для модели Category."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer

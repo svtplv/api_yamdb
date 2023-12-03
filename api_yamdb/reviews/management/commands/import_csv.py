@@ -1,4 +1,5 @@
 import csv
+import re
 
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
@@ -15,6 +16,13 @@ class Command(BaseCommand):
         """Функция загрузки CSV-файла и сохрания в базу данных."""
         with open(f'static/data/{file_path}', encoding='utf-8') as csv_file:
             reader = csv.DictReader(csv_file)
+            reader.fieldnames = [
+                re.sub(
+                    r'(?P<field>category|author)',
+                    r'\g<field>_id',
+                    fieldname
+                ) for fieldname in reader.fieldnames
+            ]
             objects = [model(**object_data) for object_data in reader]
             model.objects.bulk_create(objects)
 

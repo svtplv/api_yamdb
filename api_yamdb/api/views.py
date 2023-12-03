@@ -4,7 +4,6 @@ from rest_framework import filters, mixins, viewsets
 from reviews.models import Category, Genre, Review, Title
 from users.permissions import IsAdminOrReadOnly, IsAuthorStaffOrReadOnly
 
-from .pagination import CustomPagination
 from .serializers import (CategorySerializer, CommentSerializer,
                           ReviewSerializer, ReviewUpdateSerializer,
                           GenreSerializer, TitleSerilizer)
@@ -20,7 +19,6 @@ class GenreCategoryViewSet(mixins.ListModelMixin,
     lookup_field = 'slug'
     search_fields = ('name',)
     permission_classes = (IsAdminOrReadOnly,)
-    pagination_class = CustomPagination
 
 
 class GenreViewSet(GenreCategoryViewSet):
@@ -39,7 +37,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Title."""
     queryset = Title.objects.all()
     serializer_class = TitleSerilizer
-    pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)

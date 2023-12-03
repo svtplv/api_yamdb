@@ -1,14 +1,18 @@
-from rest_framework.fields import CharField
+from rest_framework.fields import CharField, EmailField
 from rest_framework.serializers import ModelSerializer, Serializer
 
 from .models import User
+from .validators import validate_username
 
 
-class SignUpSerializer(ModelSerializer):
+class SignUpSerializer(Serializer):
 
-    class Meta:
-        model = User
-        fields = ('username', 'email')
+    username = CharField(
+        max_length=150,
+        required=True,
+        validators=(validate_username,)
+    )
+    email = EmailField(max_length=254, required=True)
 
 
 class TokenSerializer(Serializer):

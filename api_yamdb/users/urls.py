@@ -1,13 +1,13 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import APISignUp, UserViewSet, APIToken
+from .views import APISignUp, APIToken, UserViewSet
 
-router = DefaultRouter()
+router_v1 = DefaultRouter()
 
-router.register('users', UserViewSet, 'user')
+router_v1.register('users', UserViewSet, 'user')
 
 urlpatterns = [
-    path('auth/signup/', APISignUp.as_view()),
-    path('auth/token/', APIToken.as_view()),
-    path('', include(router.urls)),
+    path('auth/signup/', APISignUp.as_view(), name='signup'),
+    path('auth/token/', APIToken.as_view(), name='token'),
+    path('', include(router_v1.urls)),
 ]

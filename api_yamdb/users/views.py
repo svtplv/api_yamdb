@@ -1,12 +1,13 @@
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
-                                   HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND)
+                                   HTTP_400_BAD_REQUEST)
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
@@ -96,16 +97,11 @@ class APIToken(APIView):
     def post(self, request):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        try:
-            user = User.objects.get(username=request.data['username'])
-        except User.DoesNotExist:
-            return Response(
-                {'username': 'Пользователь не найден'}, HTTP_404_NOT_FOUND
-            )
+        user = get_object_or_404(User, username=request.data['username'])
         code = request.data['confirmation_code']
-        if default_token_generator.check_token(user, code):
-            jwt_token = AccessToken.for_user(user)
-            return Response({'token': str(jwt_token)}, HTTP_201_CREATED)
-        return Response(
-            {'confirmation_code': 'Некорректный код'}, HTTP_400_BAD_REQUEST
-        )
+        if not default_token_generator.check_token(user, code):
+            return Response(
+                {'confirmation_code': 'Некорректный код'}, HTTP_400_BAD_REQUEST
+            )
+        jwt_token = AccessToken.for_user(user)
+        return Response({'token': str(jwt_token)}, HTTP_201_CREATED)

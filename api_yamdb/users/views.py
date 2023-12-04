@@ -12,8 +12,8 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .models import User
 from api.permissions import IsAdmin
+from .models import User
 from .serializers import (MyProfileSerializer, SignUpSerializer,
                           TokenSerializer, UserSerializer)
 

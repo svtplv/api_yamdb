@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
@@ -26,7 +27,7 @@ class CategoryViewSet(GenreCategoryMixin):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """ViewSet для модели Title."""
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerilizer
     http_method_names = settings.ALLOWED_METHODS
     permission_classes = (IsAdminOrReadOnly,)

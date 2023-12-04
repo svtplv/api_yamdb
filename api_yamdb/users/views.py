@@ -32,12 +32,14 @@ class APISignUp(APIView):
 
     @staticmethod
     def get_error(username):
-        EMAIL_INCORRECT = {
-            'email': 'Указан неверный адрес или имя пользователя уже занято'
+        USERNAME_TAKEN = {
+            'username': [
+                'Пользователь с таким username уже существует.'
+            ]
         }
-        EMAIL_TAKEN = {'email': 'Пользователь с этим адресом уже существует'}
+        EMAIL_TAKEN = {'email': ['Пользователь с таким email уже существует.']}
         return (
-            EMAIL_INCORRECT if User.objects.filter(username=username).exists()
+            USERNAME_TAKEN if User.objects.filter(username=username).exists()
             else EMAIL_TAKEN
         )
 

@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 from django.db import IntegrityError
 from rest_framework.decorators import action
@@ -22,7 +22,7 @@ class APISignUp(APIView):
 
     @staticmethod
     def send_message(recipient):
-        confirmation_code = PasswordResetTokenGenerator().make_token(recipient)
+        confirmation_code = default_token_generator.make_token(recipient)
         message = EmailMessage(
             subject='Регистрация',
             body=f'Ваш код подтверждения: {confirmation_code}',
@@ -98,7 +98,7 @@ class APIToken(APIView):
                 {'username': 'Пользователь не найден'}, HTTP_404_NOT_FOUND
             )
         code = request.data['confirmation_code']
-        if PasswordResetTokenGenerator().check_token(user, code):
+        if default_token_generator.check_token(user, code):
             jwt_token = AccessToken.for_user(user)
             return Response({'token': str(jwt_token)}, HTTP_201_CREATED)
         return Response(

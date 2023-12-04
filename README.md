@@ -34,10 +34,15 @@ pip install -r requirements.txt
 
 4. Выполнить миграции:
 ```
-python3 manage.py migrate
+python manage.py migrate
 ```
 
-5. Запустить проект:
+5. Наполнение БД данными:
+```
+python manage.py import_csv
+```
+
+6. Запустить проект:
 ```
 python manage.py runserver
 ```

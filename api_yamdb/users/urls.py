@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
 from .views import APISignUp, APIToken, UserViewSet
 
 router_v1 = DefaultRouter()

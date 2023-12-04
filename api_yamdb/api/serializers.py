@@ -28,7 +28,9 @@ class TitleSerilizer(serializers.ModelSerializer):
         required=True,
         queryset=Category.objects.all(),
         write_only=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(
+        read_only=True,
+        default=None)
 
     class Meta:
         model = Title
@@ -42,9 +44,7 @@ class TitleSerilizer(serializers.ModelSerializer):
             'category',
         )
 
-    def get_rating(self, obj):
-        rating_reviews = obj.reviews.aggregate(avg_rating=Avg('score'))
-        return rating_reviews.get('avg_rating')
+
 
     def to_representation(self, instance):
         representation = super(

@@ -59,7 +59,6 @@ class ReviewUpdateSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(
         slug_field='username',
         read_only=True,
-        default=serializers.CurrentUserDefault()
     )
 
     class Meta:
@@ -85,7 +84,6 @@ class CommentSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(
         slug_field='username',
         read_only=True,
-        default=serializers.CurrentUserDefault()
     )
 
     class Meta:

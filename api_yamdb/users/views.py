@@ -13,7 +13,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .models import User
-from .permissions import IsAdmin
+from api.permissions import IsAdmin
 from .serializers import (MyProfileSerializer, SignUpSerializer,
                           TokenSerializer, UserSerializer)
 

@@ -2,9 +2,9 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
-from reviews.models import Category, Genre, Review, Title
-from users.permissions import IsAdminOrReadOnly, IsAuthorStaffOrReadOnly
 
+from reviews.models import Category, Genre, Review, Title
+from .permissions import IsAdminOrReadOnly, IsAuthorStaffOrReadOnly
 from .filters import TitleFilter
 from .mixins import GenreCategoryMixin
 from .serializers import (CategorySerializer, CommentSerializer,

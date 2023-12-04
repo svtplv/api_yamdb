@@ -9,7 +9,7 @@ from .mixins import GenreCategoryMixin
 from .permissions import IsAdminOrReadOnly, IsAuthorStaffOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer,
-                          ReviewUpdateSerializer, TitleSerilizer)
+                          TitleSerilizer)
 
 
 class GenreViewSet(GenreCategoryMixin):
@@ -59,14 +59,10 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
     permission_classes = (IsAuthorStaffOrReadOnly,)
     http_method_names = settings.ALLOWED_METHODS
     """ViewSet для модели Review."""
-    def get_serializer_class(self):
-        if self.action == 'partial_update':
-            return ReviewUpdateSerializer
-        return ReviewSerializer
-
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
 

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 from users.models import User
@@ -5,11 +6,13 @@ from .validators import validate_score, validate_year
 
 
 class Category(models.Model):
-    name = models.CharField('Название категории', max_length=256)
+    name = models.CharField(
+        'Название категории',
+        max_length=settings.MAX_REVIEWS_NAME
+    )
     slug = models.SlugField(
         'Slug категории',
         unique=True,
-        max_length=50,
     )
 
     class Meta:
@@ -22,11 +25,13 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField('Название жанра', max_length=256)
+    name = models.CharField(
+        'Название жанра',
+        max_length=settings.MAX_REVIEWS_NAME
+    )
     slug = models.SlugField(
         'Slug жанра',
         unique=True,
-        max_length=50,
     )
 
     class Meta:
@@ -39,7 +44,10 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField('Название произведения', max_length=256)
+    name = models.CharField(
+        'Название произведения',
+        max_length=settings.MAX_REVIEWS_NAME
+    )
     year = models.IntegerField(
         'Год',
         validators=(validate_year,)

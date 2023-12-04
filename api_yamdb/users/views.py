@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMessage
 from django.db import IntegrityError
@@ -60,7 +61,7 @@ class UserViewSet(ModelViewSet):
     lookup_field = 'username'
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
-    http_method_names = ('get', 'post', 'delete', 'patch')
+    http_method_names = settings.ALLOWED_METHODS
 
     @action(
         detail=False,

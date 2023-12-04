@@ -1,10 +1,7 @@
 from django.db import models
-from django.core.validators import (
-    MaxValueValidator,
-    MinValueValidator,
-    RegexValidator)
-from django.utils import timezone
+
 from users.models import User
+from .validators import validate_score, validate_year
 
 
 class Category(models.Model):
@@ -13,13 +10,7 @@ class Category(models.Model):
         'Slug категории',
         unique=True,
         max_length=50,
-        validators=[
-            RegexValidator(
-                regex=r'^[-a-zA-Z0-9_]+$',
-                message=(
-                    'Slug должен состоять из латинских букв или цифр '
-                ),)
-        ],)
+    )
 
     class Meta:
         verbose_name = 'Категория'
@@ -36,13 +27,7 @@ class Genre(models.Model):
         'Slug жанра',
         unique=True,
         max_length=50,
-        validators=[
-            RegexValidator(
-                regex=r'^[-a-zA-Z0-9_]+$',
-                message=(
-                    'Slug должен состоять из латинских букв или цифр '    
-                ),)
-        ],)
+    )
 
     class Meta:
         verbose_name = 'Жанр'
@@ -57,8 +42,7 @@ class Title(models.Model):
     name = models.CharField('Название произведения', max_length=256)
     year = models.IntegerField(
         'Год',
-        validators=[MaxValueValidator(timezone.now().year)],
-        help_text='Год не может быть больше текущего'
+        validators=(validate_year,)
     )
     description = models.TextField('Описание', blank=True)
     category = models.ForeignKey(
@@ -100,7 +84,7 @@ class Review(models.Model):
     )
     score = models.SmallIntegerField(
         'Оценка',
-        validators=(MinValueValidator(1), MaxValueValidator(10),)
+        validators=(validate_score,)
     )
     pub_date = models.DateTimeField('Дата отзыва', auto_now_add=True,)
 

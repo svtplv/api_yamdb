@@ -15,6 +15,18 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ('name', 'slug',)
 
 
+class TitleReadSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+
+    class Meta:
+        model = Title
+        fields = (
+            'genre',
+            'category',
+        )
+
+
 class TitleSerilizer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         many=True,
@@ -46,9 +58,7 @@ class TitleSerilizer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super(
             TitleSerilizer, self).to_representation(instance)
-        representation['genre'] = GenreSerializer(
-            instance.genre, many=True).data
-        representation['category'] = CategorySerializer(instance.category).data
+        representation.update(TitleReadSerializer(instance).data)
         return representation
 
 

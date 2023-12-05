@@ -11,9 +11,9 @@ class IsAuthorStaffOrReadOnly(IsAuthenticatedOrReadOnly):
         return (
             request.method in SAFE_METHODS
             or request.user.is_authenticated and any((
-                obj.author == request.user,
                 request.user.is_mod,
                 request.user.is_admin,
+                obj.author == request.user
             ))
         )
 

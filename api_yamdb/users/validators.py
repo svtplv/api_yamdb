@@ -8,8 +8,9 @@ def validate_username(value):
     if value in settings.FORBIDDEN_WORDS:
         raise ValidationError(f'Имя пользователя не может быть {value}')
 
-    if not re.fullmatch(r'[\w.@+-]+', value):
+    unexpected_symbols = re.sub(r'[\w.@+-]+', '', value)
+    if unexpected_symbols:
         raise ValidationError(
-            'Имя пользователя должно состоять из букв/цифр/'
-            'символов @.+-_'
+            'Имя пользователя не должно содержать следующих символов: '
+            f'{unexpected_symbols}'
         )

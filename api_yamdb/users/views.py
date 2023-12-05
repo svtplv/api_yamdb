@@ -47,17 +47,14 @@ class APISignUp(APIView):
         serializer.is_valid(raise_exception=True)
         user = User.objects.filter(username=request.data['username']).first()
         email_user = User.objects.filter(email=request.data['email']).first()
-        if any((
-            user == email_user,
-            not email_user and user and not user.email,
-        )):
-            if not email_user:
-                user, _ = User.objects.update_or_create(
-                    **serializer.validated_data
-                )
-            self.send_message(user)
-            return Response(serializer.data, HTTP_200_OK)
-        return Response(self.get_error(user), HTTP_400_BAD_REQUEST)
+        if user != email_user and (email_user or user.email):
+            return Response(self.get_error(user), HTTP_400_BAD_REQUEST)
+        if not email_user:
+            user, _ = User.objects.update_or_create(
+                **serializer.validated_data
+            )
+        self.send_message(user)
+        return Response(serializer.data, HTTP_200_OK)
 
 
 class UserViewSet(ModelViewSet):

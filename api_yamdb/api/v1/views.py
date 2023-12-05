@@ -9,8 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
-                                   HTTP_400_BAD_REQUEST)
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
@@ -25,7 +24,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
 
 
 class APISignUp(APIView):
-
+    """APIView для регистрации пользоватей и выдачи кода подтверждения."""
     @staticmethod
     def send_message(recipient):
         confirmation_code = default_token_generator.make_token(recipient)
@@ -55,15 +54,15 @@ class APISignUp(APIView):
         email_user = User.objects.filter(email=request.data['email']).first()
         if user != email_user and (email_user or user.email):
             return Response(self.get_error(user), HTTP_400_BAD_REQUEST)
-        if not email_user:
-            user, _ = User.objects.update_or_create(
-                **serializer.validated_data
-            )
+        user, _ = User.objects.get_or_create(
+            **serializer.validated_data
+        )
         self.send_message(user)
         return Response(serializer.data, HTTP_200_OK)
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    """ViewSet для модели User."""
     queryset = User.objects.all()
     permission_classes = (IsAdmin,)
     serializer_class = UserSerializer
@@ -96,7 +95,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class APIToken(APIView):
-
+    """APIView для получения JWT-токена."""
     def post(self, request):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -107,7 +106,7 @@ class APIToken(APIView):
                 {'confirmation_code': 'Некорректный код'}, HTTP_400_BAD_REQUEST
             )
         jwt_token = AccessToken.for_user(user)
-        return Response({'token': str(jwt_token)}, HTTP_201_CREATED)
+        return Response({'token': str(jwt_token)}, HTTP_200_OK)
 
 
 class GenreViewSet(GenreCategoryMixin):
@@ -157,10 +156,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """ViewSet для модели Review."""
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorStaffOrReadOnly,)
     http_method_names = settings.ALLOWED_METHODS
-    """ViewSet для модели Review."""
+
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
 

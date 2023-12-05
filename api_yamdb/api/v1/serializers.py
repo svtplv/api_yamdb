@@ -19,7 +19,11 @@ class SignUpSerializer(serializers.Serializer):
 
 class TokenSerializer(serializers.Serializer):
 
-    username = CharField(max_length=settings.MAX_USERS_NAME, required=True)
+    username = CharField(
+        max_length=settings.MAX_USERS_NAME,
+        required=True,
+        validators=(validate_username,)
+    )
     confirmation_code = CharField(required=True)
 
 

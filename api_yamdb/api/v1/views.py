@@ -1,7 +1,10 @@
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
@@ -9,12 +12,15 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_400_BAD_REQUEST)
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.permissions import IsAdmin
-from .models import User
-from .serializers import (MyProfileSerializer, SignUpSerializer,
+from reviews.models import Category, Genre, Review, Title, User
+from .filters import TitleFilter
+from .mixins import GenreCategoryMixin
+from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorStaffOrReadOnly
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, MyProfileSerializer,
+                          ReviewSerializer, SignUpSerializer, TitleSerilizer,
                           TokenSerializer, UserSerializer)
 
 
@@ -57,7 +63,7 @@ class APISignUp(APIView):
         return Response(serializer.data, HTTP_200_OK)
 
 
-class UserViewSet(ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = (IsAdmin,)
     serializer_class = UserSerializer
@@ -102,3 +108,67 @@ class APIToken(APIView):
             )
         jwt_token = AccessToken.for_user(user)
         return Response({'token': str(jwt_token)}, HTTP_201_CREATED)
+
+
+class GenreViewSet(GenreCategoryMixin):
+    """ViewSet для модели Genre."""
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+
+class CategoryViewSet(GenreCategoryMixin):
+    """ViewSet для модели Category."""
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """ViewSet для модели Title."""
+    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    serializer_class = TitleSerilizer
+    http_method_names = settings.ALLOWED_METHODS
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TitleFilter
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    """ViewSet для модели Comment."""
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthorStaffOrReadOnly, )
+    http_method_names = settings.ALLOWED_METHODS
+
+    def get_queryset(self):
+        review = get_object_or_404(
+            Review,
+            pk=self.kwargs.get('review_id')
+        )
+        return review.comments.all()
+
+    def perform_create(self, serializer):
+        review = get_object_or_404(
+            Review,
+            pk=self.kwargs.get('review_id'),
+            title_id=self.kwargs.get('title_id'),
+        )
+        serializer.save(
+            author=self.request.user, review=review
+        )
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = (IsAuthorStaffOrReadOnly,)
+    http_method_names = settings.ALLOWED_METHODS
+    """ViewSet для модели Review."""
+    def get_title(self):
+        return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+
+    def get_queryset(self):
+        return self.get_title().reviews.all()
+
+    def perform_create(self, serializer):
+        return serializer.save(
+            author=self.request.user,
+            title=self.get_title()
+        )

@@ -1,6 +1,45 @@
+from django.conf import settings
 from rest_framework import serializers
+from rest_framework.fields import CharField, EmailField
 from rest_framework.relations import SlugRelatedField
-from reviews.models import Category, Comment, Genre, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title, User
+from users.validators import validate_username
+
+
+class SignUpSerializer(serializers.Serializer):
+
+    username = CharField(
+        max_length=settings.MAX_USERS_NAME,
+        required=True,
+        validators=(validate_username,)
+    )
+    email = EmailField(max_length=settings.MAX_EMAIL, required=True)
+
+
+class TokenSerializer(serializers.Serializer):
+
+    username = CharField(max_length=settings.MAX_USERS_NAME, required=True)
+    confirmation_code = CharField(required=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role',
+        )
+
+
+class MyProfileSerializer(serializers.ModelSerializer):
+
+    class Meta(UserSerializer.Meta):
+        read_only_fields = ('role',)
 
 
 class GenreSerializer(serializers.ModelSerializer):

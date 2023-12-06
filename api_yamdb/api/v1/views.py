@@ -44,7 +44,7 @@ class APISignUp(APIView):
         }
         EMAIL_TAKEN = {'email': ['Пользователь с таким email уже существует.']}
         return (
-            USERNAME_TAKEN if user and user.email else EMAIL_TAKEN
+            USERNAME_TAKEN if user else EMAIL_TAKEN
         )
 
     def post(self, request):
@@ -52,7 +52,7 @@ class APISignUp(APIView):
         serializer.is_valid(raise_exception=True)
         user = User.objects.filter(username=request.data['username']).first()
         email_user = User.objects.filter(email=request.data['email']).first()
-        if user != email_user and (email_user or user.email):
+        if user != email_user and (email_user or user):
             return Response(self.get_error(user), HTTP_400_BAD_REQUEST)
         user, _ = User.objects.get_or_create(
             **serializer.validated_data
